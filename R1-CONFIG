@@ -10,6 +10,10 @@ interface xe19.1001
  encapsulation dot1q 1001
  ip address 100.10.1.1/30
 !
+interface xe19.1002
+ encapsulation dot1q 1002
+ ip address 100.10.2.10/30
+!
 !
 interface lo
  ip address 1.1.1.1/32 secondary

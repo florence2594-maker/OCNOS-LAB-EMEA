@@ -7,6 +7,20 @@ ip vrf IPVRF_1
  router-id 10.10.10.5
  rd 10.10.10.5:100
  route-target both 2422:100
+ !
+ip vrf GRT_L3EVPN
+rd 10.10.10.5:100
+route-target both 2422:200
+l3vni 200
+!
+mac vrf EVPN_1002
+ rd 10.10.10.5:1002
+ route-target both 2422:1002
+!
+evpn mpls id 1002
+ host-reachability-protocol evpn-bgp EVPN_1002
+ evpn irb irb1002
+!
 !
  mac vrf EVPN_1001
  rd 10.10.10.5:1001
@@ -14,7 +28,7 @@ ip vrf IPVRF_1
 !
 evpn mpls id 1001
 host-reachability-protocol evpn-bgp EVPN_1001
-
+!
 !
 interface loopback1
  ip address 10.10.10.5/32
@@ -32,6 +46,15 @@ interface xe19.1001 switchport
 encapsulation dot1q 1001
 access-if-evpn
 map vpn-id 1001
+!
+interface xe19.1002 switchport
+encapsulation dot1q 1002
+access-if-evpn
+map vpn-id 1002
+!
+interface irb1002
+ ip vrf forwarding GRT_L3EVPN
+ ip address 100.10.2.2/24
 !
 interface xe18
  ip address 10.10.45.2/30

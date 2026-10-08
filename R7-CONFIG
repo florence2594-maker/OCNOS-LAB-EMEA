@@ -10,6 +10,10 @@ interface xe11.1001
  encapsulation dot1q 1001
  ip address 100.10.1.2/30
 !
+interface xe11.1002
+ encapsulation dot1q 1002
+ ip address 100.10.2.70/30
+!
 interface lo
  ip address 7.7.7.7/32 secondary
  ipv6 address fec0:7777::7:7:7:7/128
