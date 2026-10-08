@@ -1,6 +1,112 @@
+
+service password-encryption
+!
+logging level nsm 4
+logging level cmm 4
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile statistics voq-full-color enable
+hardware-profile statistics cfm-ccm enable
+!
+qos enable
 !
 hostname CE1
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature dns relay
+ip dns relay
+ipv6 dns relay
+feature rsyslog
+logging remote server 172.16.10.17 5 port 1514 vrf management
+lldp run
+lldp tlv-select basic-mgmt port-description
+lldp tlv-select basic-mgmt system-name
+lldp tlv-select basic-mgmt system-capabilities
+lldp tlv-select basic-mgmt system-description
+lldp tlv-select basic-mgmt management-address
+lldp notification-interval 1000
+fault-management enable
 !
+ip vrf management
+!
+ip prefix-list PL-SYSTEM-IP
+ seq 10 permit 10.0.0.0/24
+ seq 20 permit 10.0.1.0/24
+!
+ip prefix-list PL-VPN-SERVICE
+ seq 10 permit 192.168.0.0/16
+ seq 20 permit 172.16.0.0/16
+!
+route-map EXPORT permit 10
+ match ip address prefix-list PL-SYSTEM-IP
+ set ip next-hop self
+!
+route-map EXPORT permit 20
+ match ip address prefix-list PL-VPN-SERVICE
+!
+route-map EXPORT permit 60
+ match community CL-REGION-X-SELF
+ set ip next-hop self
+!
+route-map EXPORT deny 100
+!
+interface ce0
+!
+interface ce1
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface lo
+ ip address 127.0.0.1/8
+ ip address 1.1.1.1/32 secondary
+ ipv6 address ::1/128
+ ipv6 address fec0:2422::1:1:1:1/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface xe2
+!
+interface xe3
+!
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+!
+interface xe10
+!
+interface xe11
+!
+interface xe12
+!
+interface xe13
+!
+interface xe14
+!
+interface xe15
+!
+interface xe16
+!
+interface xe17
+!
+interface xe18
+!
+interface xe19
 !
 interface xe19.100
  encapsulation dot1q 100
@@ -14,10 +120,25 @@ interface xe19.1002
  encapsulation dot1q 1002
  ip address 100.10.2.10/24
 !
+interface xe20
 !
-interface lo
- ip address 1.1.1.1/32 secondary
- ipv6 address fec0:2422::1:1:1:1/128
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+interface xe24
+!
+interface xe25
+!
+interface xe26
+!
+interface xe27
+!
+interface xe28
+!
+interface xe29
 !
  exit
 !
@@ -30,3 +151,7 @@ router bgp 100
  redistribute connected
  neighbor 100.66.5.1 activate
  exit-address-family
+ !
+ exit
+!
+ip community-list standard CL-REGION-X-SELF permit 65000:1234

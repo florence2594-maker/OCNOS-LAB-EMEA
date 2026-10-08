@@ -1,12 +1,110 @@
-
-
-hostname PE3
+service password-encryption
 !
+logging level nsm 4
+logging level cmm 4
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile filter egress-qos-policer-ext enable
+hardware-profile filter qos enable
+hardware-profile statistics voq-full-color enable
+hardware-profile statistics tunnel-lif enable
+hardware-profile statistics egress-policer enable
+hardware-profile statistics cfm-ccm enable
+!
+bfd interval 50 minrx 50 multiplier 3
+!
+qos enable
+qos statistics
+!
+mpls ftn-ecmp ldp
+!
+hostname PE3
+bridge 1 protocol ieee vlan-bridge
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature rsyslog
+logging remote server 172.16.10.17 5 port 1514 vrf management
+lldp run
+lldp tlv-select basic-mgmt port-description
+lldp tlv-select basic-mgmt system-name
+lldp tlv-select basic-mgmt system-capabilities
+lldp tlv-select basic-mgmt system-description
+lldp tlv-select basic-mgmt management-address
+lldp notification-interval 1000
+fault-management enable
+!
+policy-map type qos abc10
+ class type qos class-default
+  police cir 10 mbps
+  exit
+!
+vlan database
+ vlan 1 bridge 1 name default state enable
+ vlan 10 bridge 1 state enable
+ vlan 20 bridge 1 state enable
+ private-vlan 10 isolated bridge 1
+ private-vlan 1 primary bridge 1
+ private-vlan 20 community bridge 1
+ private-vlan 1 association add 10 bridge 1
+ private-vlan 1 association add 20 bridge 1
 !
 evpn mpls enable
-evpn mpls vtep-ip-global 10.10.10.3
+!
 evpn mpls irb
+!
 evpn irb-forwarding anycast-gateway-mac 0000.0000.0003
+!
+ip vrf management
+!
+ip prefix-list isis-RAN
+ seq 5 permit 10.10.100.3/32
+!
+route-map isis-RAN permit 10
+ match ip address prefix-list isis-RAN
+!
+route-map AIGP permit 10
+ set aigp-metric igp-metric
+!
+interface cd0
+ description To-PE4-cd1
+ load-interval 30
+ mtu 9216
+ ip router isis RAN
+ bfd interval 50 minrx 50 multiplier 3
+!
+interface cd1
+ description To-P2-cd1
+ load-interval 30
+ ip address 10.10.23.2/30
+ ipv6 address 2603::8/127
+ mtu 9216
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  exit
+!
+interface ce2
+!
+interface ce3
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface lo
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
 !
 interface loopback1
  ip address 10.10.10.3/32
@@ -15,31 +113,72 @@ interface loopback1
  ip router isis 2422
  ipv6 router isis 2422
 !
+interface vlan1.20
+ service-policy type qos input abc10
+ service-policy type qos output abc10
 !
-interface cd1
- ip address 10.10.23.2/30
- ipv6 address 2603::8/127
- label-switching
- isis network point-to-point
- ip router isis 2422
- ipv6 router isis 2422
- lldp-agent
-  set lldp enable txrx
-  dcbx enable
-  exit
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+!
+interface xe10
 !
 interface xe11
+ description To-PE5-xe12
+ load-interval 30
  ip address 10.10.35.1/30
  ipv6 address 2603::6/127
+ mtu 9216
  label-switching
  isis network point-to-point
  ip router isis 2422
  ipv6 router isis 2422
  lldp-agent
   set lldp enable txrx
-  dcbx enable
   exit
+ bfd interval 50 minrx 50 multiplier 3
 !
+interface xe12
+!
+interface xe13
+!
+interface xe14
+!
+interface xe15
+!
+interface xe16
+!
+interface xe17
+!
+interface xe18
+!
+interface xe19
+!
+interface xe20
+!
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+interface xe24
+!
+interface xe25
+!
+interface xe26
+!
+interface xe27
+!
+ exit
 !
 router isis 2422
  is-type level-1
@@ -51,6 +190,9 @@ router isis 2422
  net 49.2422.0000.0000.0003.00
  isis segment-routing global block 16000 23999
  segment-routing mpls
+!
+bgp nexthop-trigger enable
+bgp nexthop-trigger delay 1
 !
 router bgp 2422
  bgp router-id 10.10.10.3
@@ -69,40 +211,36 @@ router bgp 2422
  neighbor fec0:2422::10:10:10:5 update-source loopback1
  !
  address-family ipv4 unicast
- neighbor 10.10.10.2 activate
- neighbor 10.10.10.2 next-hop-self
- neighbor 10.10.10.4 activate
- neighbor 10.10.10.4 next-hop-self
- neighbor 10.10.10.5 activate
- neighbor 10.10.10.5 next-hop-self
+  neighbor 10.10.10.2 activate
+  neighbor 10.10.10.2 next-hop-self
+  neighbor 10.10.10.4 activate
+  neighbor 10.10.10.4 next-hop-self
+  neighbor 10.10.10.5 activate
+  neighbor 10.10.10.5 next-hop-self
  exit-address-family
  !
  address-family vpnv4 unicast
- neighbor 10.10.10.2 activate
- neighbor 10.10.10.2 next-hop-self
- neighbor 10.10.10.4 activate
- neighbor 10.10.10.4 next-hop-self
- neighbor 10.10.10.5 activate
- neighbor 10.10.10.5 next-hop-self
+  neighbor 10.10.10.2 activate
+  neighbor 10.10.10.2 next-hop-self
+  neighbor 10.10.10.4 activate
+  neighbor 10.10.10.4 next-hop-self
+  neighbor 10.10.10.5 activate
+  neighbor 10.10.10.5 next-hop-self
  exit-address-family
  !
  address-family l2vpn evpn
- neighbor 10.10.10.2 activate
- neighbor 10.10.10.2 next-hop-self
- neighbor 10.10.10.4 activate
- neighbor 10.10.10.4 next-hop-self
- neighbor 10.10.10.5 activate
- neighbor 10.10.10.5 next-hop-self
+  neighbor 10.10.10.2 activate
+  neighbor 10.10.10.4 activate
+  neighbor 10.10.10.5 activate
  exit-address-family
  !
  address-family ipv6 unicast
- neighbor fec0:2422::10:10:10:2 activate
- neighbor fec0:2422::10:10:10:2 next-hop-self
- neighbor fec0:2422::10:10:10:4 activate
- neighbor fec0:2422::10:10:10:4 next-hop-self
- neighbor fec0:2422::10:10:10:5 activate
- neighbor fec0:2422::10:10:10:5 next-hop-self
+  neighbor fec0:2422::10:10:10:2 activate
+  neighbor fec0:2422::10:10:10:2 next-hop-self
+  neighbor fec0:2422::10:10:10:4 activate
+  neighbor fec0:2422::10:10:10:4 next-hop-self
+  neighbor fec0:2422::10:10:10:5 activate
+  neighbor fec0:2422::10:10:10:5 next-hop-self
  exit-address-family
  !
  exit
-!

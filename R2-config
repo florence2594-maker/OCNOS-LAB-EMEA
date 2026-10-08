@@ -1,6 +1,35 @@
 
+PE2#show running-config
+!
+! Software version: UFI_S9510-28DC-OcNOS-SP-NA-7.0.1.999- 08/31/2026 08:07:53
+!
+! Last configuration change at 15:22:16 UTC Thu Oct 08 2026 by ocnos
+!
+service password-encryption
+!
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile statistics voq-full-color enable
+hardware-profile statistics cfm-ccm enable
+!
+bfd interval 50 minrx 50 multiplier 3
+!
+qos enable
+qos statistics
+!
+mpls ftn-ecmp ldp
 !
 hostname PE2
+bridge 1 protocol ieee vlan-bridge
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature dns relay
+ip dns relay
+ipv6 dns relay
+lldp run
 lldp tlv-select basic-mgmt port-description
 lldp tlv-select basic-mgmt system-name
 lldp tlv-select basic-mgmt system-capabilities
@@ -8,35 +37,100 @@ lldp tlv-select basic-mgmt system-description
 lldp tlv-select basic-mgmt management-address
 !
 evpn mpls enable
-evpn mpls vtep-ip-global 10.10.10.2
+!
 evpn mpls irb
+!
 evpn irb-forwarding anycast-gateway-mac 0000.0000.0002
+!
+ip vrf GRT_L3EVPN
+ rd 10.10.10.2:200
+ route-target both 2422:200
+ l3vni 200
 !
 ip vrf IPVRF_1
  router-id 10.10.10.2
  rd 10.10.10.2:100
  route-target both 2422:100
- !
-ip vrf GRT_L3EVPN
-rd 10.10.10.2:200
-route-target both 2422:200
-l3vni 200
+!
+ip vrf management
+!
+mac vrf EVPN_1001
+ rd 10.10.10.2:1001
+ route-target both 2422:1001
 !
 mac vrf EVPN_1002
  rd 10.10.10.2:1002
  route-target both 2422:1002
 !
+evpn mpls vtep-ip-global 10.10.10.2
+!
+evpn mpls id 1001
+ host-reachability-protocol evpn-bgp EVPN_1001
+!
 evpn mpls id 1002
  host-reachability-protocol evpn-bgp EVPN_1002
  evpn irb irb1002
+ evpn irb-advertise-host-route
 !
- mac vrf EVPN_1001
- rd 10.10.10.2:1001
- route-target both 2422:1001
+ip prefix-list isis-RAN
+ seq 5 permit 10.10.100.2/32
 !
-evpn mpls id 1001
-host-reachability-protocol evpn-bgp EVPN_1001
+route-map isis-RAN permit 10
+ match ip address prefix-list isis-RAN
 !
+route-map AIGP permit 10
+ set aigp-metric igp-metric
+!
+interface cd0
+ description To-PE4-cd0
+ load-interval 30
+ ip address 10.10.24.1/30
+ ipv6 address 2603::2/127
+ mtu 9216
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  exit
+!
+interface cd1
+ description To-P3-cd1
+ load-interval 30
+ ip address 10.10.23.1/30
+ ipv6 address 2603::9/127
+ mtu 9216
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  exit
+!
+interface ce2
+!
+interface ce3
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface irb1002
+ ip vrf forwarding GRT_L3EVPN
+ evpn irb-if-forwarding anycast-gateway-mac
+ ip address 100.10.2.100/24 anycast
+ ip address 100.10.2.1/24 secondary
+!
+interface lo
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
 !
 interface loopback1
  ip address 10.10.10.2/32
@@ -45,49 +139,74 @@ interface loopback1
  ip router isis 2422
  ipv6 router isis 2422
 !
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+!
+interface xe10
+!
+interface xe11
+ description To-PE5-xe11
+ load-interval 30
+ mtu 9216
+ bfd interval 50 minrx 50 multiplier 3
+!
+interface xe12
+!
+interface xe13
+!
 interface xe13.100
  encapsulation dot1q 100
  ip vrf forwarding IPVRF_1
  ip address 100.66.2.1/30
 !
 interface xe13.1001 switchport
-encapsulation dot1q 1001
-access-if-evpn
-map vpn-id 1001
+ encapsulation dot1q 1001
+ access-if-evpn
+  map vpn-id 1001
 !
 interface xe13.1002 switchport
-encapsulation dot1q 1002
-access-if-evpn
-map vpn-id 1002
+ encapsulation dot1q 1002
+ access-if-evpn
+  map vpn-id 1002
 !
-interface irb1002
- ip vrf forwarding GRT_L3EVPN
- ip address 100.10.2.1/24
+interface xe14
 !
-interface cd1
- ip address 10.10.23.1/30
- ipv6 address 2603::9/127
- label-switching
- isis network point-to-point
- ip router isis 2422
- ipv6 router isis 2422
- lldp-agent
-  set lldp enable txrx
-  dcbx enable
-  exit
+interface xe15
 !
-interface cd0
- ip address 10.10.24.1/30
- ipv6 address 2603::2/127
- label-switching
- isis network point-to-point
- ip router isis 2422
- ipv6 router isis 2422
- lldp-agent
-  set lldp enable txrx
-  dcbx enable
-  exit
+interface xe16
 !
+interface xe17
+!
+interface xe18
+!
+interface xe19
+!
+interface xe20
+!
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+interface xe24
+!
+interface xe25
+!
+interface xe26
+!
+interface xe27
+!
+ exit
 !
 router isis 2422
  is-type level-1
@@ -99,6 +218,9 @@ router isis 2422
  net 49.2422.0000.0000.0002.00
  isis segment-routing global block 16000 23999
  segment-routing mpls
+!
+bgp nexthop-trigger enable
+bgp nexthop-trigger delay 1
 !
 router bgp 2422
  bgp router-id 10.10.10.2
@@ -117,24 +239,6 @@ router bgp 2422
  neighbor fec0:2422::10:10:10:5 update-source loopback1
  !
  address-family ipv4 unicast
- neighbor 10.10.10.3 activate
- neighbor 10.10.10.3 next-hop-self
- neighbor 10.10.10.4 activate
- neighbor 10.10.10.4 next-hop-self
- neighbor 10.10.10.5 activate
- neighbor 10.10.10.5 next-hop-self
- exit-address-family
- !
- address-family vpnv4 unicast
- neighbor 10.10.10.3 activate
- neighbor 10.10.10.3 next-hop-self
- neighbor 10.10.10.4 activate
- neighbor 10.10.10.4 next-hop-self
- neighbor 10.10.10.5 activate
- neighbor 10.10.10.5 next-hop-self
- exit-address-family
- !
-address-family l2vpn evpn
   neighbor 10.10.10.3 activate
   neighbor 10.10.10.3 next-hop-self
   neighbor 10.10.10.4 activate
@@ -143,18 +247,38 @@ address-family l2vpn evpn
   neighbor 10.10.10.5 next-hop-self
  exit-address-family
  !
+ address-family vpnv4 unicast
+  neighbor 10.10.10.3 activate
+  neighbor 10.10.10.3 next-hop-self
+  neighbor 10.10.10.4 activate
+  neighbor 10.10.10.4 next-hop-self
+  neighbor 10.10.10.5 activate
+  neighbor 10.10.10.5 next-hop-self
+ exit-address-family
+ !
+ address-family l2vpn evpn
+  neighbor 10.10.10.3 activate
+  neighbor 10.10.10.4 activate
+  neighbor 10.10.10.5 activate
+ exit-address-family
+ !
  address-family ipv6 unicast
- neighbor fec0:2422::10:10:10:3 activate
- neighbor fec0:2422::10:10:10:3 next-hop-self
- neighbor fec0:2422::10:10:10:4 activate
- neighbor fec0:2422::10:10:10:4 next-hop-self
- neighbor fec0:2422::10:10:10:5 activate
- neighbor fec0:2422::10:10:10:5 next-hop-self
+  neighbor fec0:2422::10:10:10:3 activate
+  neighbor fec0:2422::10:10:10:3 next-hop-self
+  neighbor fec0:2422::10:10:10:4 activate
+  neighbor fec0:2422::10:10:10:4 next-hop-self
+  neighbor fec0:2422::10:10:10:5 activate
+  neighbor fec0:2422::10:10:10:5 next-hop-self
  exit-address-family
  !
  address-family ipv4 vrf IPVRF_1
- neighbor 100.66.2.2 remote-as 700
- neighbor 100.66.2.2 activate
+  neighbor 100.66.2.2 remote-as 700
+  neighbor 100.66.2.2 activate
  exit-address-family
  !
  exit
+!
+!
+end
+
+!

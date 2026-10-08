@@ -1,10 +1,126 @@
-
+feature streaming-telemetry vrf management
+!
+telemetry maximum-subscribe-paths 140
+!
+service password-encryption
+!
+logging level nsm 4
+logging level cmm 4
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile filter ingress-ipv4-ext enable
+hardware-profile statistics voq-full-color enable
+hardware-profile statistics cfm-ccm enable
+!
+bfd interval 50 minrx 50 multiplier 3
+!
+qos enable
+qos statistics
+!
+mpls l2vpn-stitching
+mpls ftn-ecmp ldp
+!
+mpls vpls test 100
+ vpls-mtu 1600
+ signaling ldp
+  vpls-type vlan
+  vpls-peer 10.10.10.5
+ exit-signaling
+ exit-vpls
+!
 hostname PE4
+feature pbr
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature dns relay
+ip dns relay
+ipv6 dns relay
+feature rsyslog
+logging remote server 172.16.10.17 5 port 1514 vrf management
+lldp run
+lldp tlv-select basic-mgmt port-description
+lldp tlv-select basic-mgmt system-name
+lldp tlv-select basic-mgmt system-capabilities
+lldp tlv-select basic-mgmt system-description
+lldp tlv-select basic-mgmt management-address
+lldp notification-interval 1000
+fault-management enable
+!
+ip access-list Anti-Spoofing
+ remark 1 Anti-Spoofing
+ 10 deny any 0.0.0.0 0.255.255.255 any
+ 20 deny any 10.0.0.0 0.255.255.255 any
+ 30 deny any 100.64.0.0 0.63.255.255 any
+ip access-list PBR-test
+ 5 permit icmp host 2.2.2.2 host 8.8.8.8
+ 10 permit any host 10.233.128.108 host 10.233.128.97
+ip access-list PBR-test1
+ 10 permit icmp host 2.2.2.2 host 2.2.2.1
+ 30 deny icmp any any
 !
 evpn mpls enable
-evpn mpls vtep-ip-global 10.10.10.4
+!
 evpn mpls irb
+!
 evpn irb-forwarding anycast-gateway-mac 0000.0000.0004
+!
+ip vrf management
+!
+evpn mpls vtep-ip-global 10.10.10.4
+!
+route-map AIGP permit 10
+ set aigp-metric igp-metric
+!
+route-map PBR-test permit 10
+ match ip address PBR-test
+ set ip next-hop 10.233.128.111
+!
+route-map PBR-test1 permit 10
+ match ip address PBR-test1
+ set ip next-hop 10.233.128.111
+!
+interface po1
+!
+interface cd0
+ description To-P2-cdo
+ load-interval 30
+ ip address 10.10.24.2/30
+ ipv6 address 2603::3/127
+ mtu 9216
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  exit
+ bfd interval 50 minrx 50 multiplier 3
+!
+interface cd1
+ description To-P3-cd0
+ load-interval 30
+ mtu 9216
+ bfd interval 50 minrx 50 multiplier 3
+!
+interface ce2
+!
+interface ce3
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface lo
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
 !
 interface loopback1
  ip address 10.10.10.4/32
@@ -13,30 +129,68 @@ interface loopback1
  ip router isis 2422
  ipv6 router isis 2422
 !
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+ speed 10g
+!
+interface xe10
+!
+interface xe11
+!
+interface xe12
+!
+interface xe13
+!
+interface xe14
+!
+interface xe15
+ mtu 9216
+!
+interface xe16
+!
+interface xe17
 !
 interface xe18
  ip address 10.10.45.1/30
  ipv6 address 2603::4/127
+ mtu 9212
  label-switching
  isis network point-to-point
  ip router isis 2422
  ipv6 router isis 2422
  lldp-agent
   set lldp enable txrx
-  dcbx enable
   exit
 !
-interface cd0
- ip address 10.10.24.2/30
- ipv6 address 2603::3/127
- label-switching
- isis network point-to-point
- ip router isis 2422
- ipv6 router isis 2422
- lldp-agent
-  set lldp enable txrx
-  dcbx enable
-  exit
+interface xe19
+!
+interface xe20
+!
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+interface xe24
+!
+interface xe25
+ mtu 1600
+!
+interface xe26
+!
+interface xe27
+!
+ exit
 !
 router isis 2422
  is-type level-1
@@ -48,6 +202,9 @@ router isis 2422
  net 49.2422.0000.0000.0004.00
  isis segment-routing global block 16000 23999
  segment-routing mpls
+!
+bgp nexthop-trigger enable
+bgp nexthop-trigger delay 1
 !
 router bgp 2422
  bgp router-id 10.10.10.4
@@ -83,13 +240,10 @@ router bgp 2422
  neighbor 10.10.10.5 next-hop-self
  exit-address-family
  !
-address-family l2vpn evpn
+ address-family l2vpn evpn
  neighbor 10.10.10.2 activate
- neighbor 10.10.10.2 next-hop-self
  neighbor 10.10.10.3 activate
- neighbor 10.10.10.3 next-hop-self
  neighbor 10.10.10.5 activate
- neighbor 10.10.10.5 next-hop-self
  exit-address-family
  !
  address-family ipv6 unicast
@@ -102,3 +256,4 @@ address-family l2vpn evpn
  exit-address-family
  !
  exit
+!
