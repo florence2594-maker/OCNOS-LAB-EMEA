@@ -1,0 +1,103 @@
+hostname PE
+!
+ip vrf IP_VRF
+ router-id 10.10.10.5
+ rd 2422:5
+ route-target both 2422:100
+!
+!
+interface loopback1
+ ip address 10.10.10.5/32
+ ipv6 address fec0:2422::10:10:10:5/128
+ prefix-sid index 55
+ ip router isis 2422
+ ipv6 router isis 2422
+!
+interface xe19
+ ip vrf forwarding IP_VRF
+ ip address 100.66.5.1/30
+!
+interface xe18
+ ip address 10.10.45.2/30
+ ipv6 address 2603::5/127
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  dcbx enable
+  exit
+!
+interface xe12
+ ip address 10.10.35.2/30
+ ipv6 address 2603::7/127
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  dcbx enable
+  exit
+!
+router isis 2422
+ is-type level-1
+ metric-style wide level-1
+ mpls traffic-eng level-1
+ dynamic-hostname
+ fast-reroute per-prefix level-1 proto ipv4 all
+ bfd all-interfaces
+ net 49.2422.0000.0000.0005.00
+ isis segment-routing global block 16000 23999
+ segment-routing mpls
+!
+router bgp 2422
+ bgp router-id 10.10.10.5
+ no bgp inbound-route-filter
+ neighbor 10.10.10.2 remote-as 2422
+ neighbor 10.10.10.2 update-source loopback1
+ neighbor 10.10.10.3 remote-as 2422
+ neighbor 10.10.10.3 update-source loopback1
+ neighbor 10.10.10.4 remote-as 2422
+ neighbor 10.10.10.4 update-source loopback1
+ neighbor fec0:2422::10:10:10:2 remote-as 2422
+ neighbor fec0:2422::10:10:10:2 update-source loopback1
+ neighbor fec0:2422::10:10:10:3 remote-as 2422
+ neighbor fec0:2422::10:10:10:3 update-source loopback1
+ neighbor fec0:2422::10:10:10:4 remote-as 2422
+ neighbor fec0:2422::10:10:10:4 update-source loopback1
+ !
+ address-family ipv4 unicast
+ neighbor 10.10.10.2 activate
+ neighbor 10.10.10.2 next-hop-self
+ neighbor 10.10.10.3 activate
+ neighbor 10.10.10.3 next-hop-self
+ neighbor 10.10.10.4 activate
+ neighbor 10.10.10.4 next-hop-self
+ exit-address-family
+ !
+ address-family vpnv4 unicast
+ neighbor 10.10.10.2 activate
+ neighbor 10.10.10.2 next-hop-self
+ neighbor 10.10.10.3 activate
+ neighbor 10.10.10.3 next-hop-self
+ neighbor 10.10.10.4 activate
+ neighbor 10.10.10.4 next-hop-self
+ exit-address-family
+ !
+ address-family ipv6 unicast
+ neighbor fec0:2422::10:10:10:2 activate
+ neighbor fec0:2422::10:10:10:2 next-hop-self
+ neighbor fec0:2422::10:10:10:3 activate
+ neighbor fec0:2422::10:10:10:3 next-hop-self
+ neighbor fec0:2422::10:10:10:4 activate
+ neighbor fec0:2422::10:10:10:4 next-hop-self
+ exit-address-family
+ !
+ address-family ipv4 vrf IP_VRF
+ neighbor 100.66.5.2 remote-as 100
+ neighbor 100.66.5.2 activate
+ exit-address-family
+ !
+ exit

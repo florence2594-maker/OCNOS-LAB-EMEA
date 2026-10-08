@@ -1,0 +1,27 @@
+!
+hostname r1
+!
+!
+interface xe19
+ ip address 100.66.5.2/30
+ lldp-agent
+  set lldp enable txrx
+  dcbx enable
+  exit
+!
+!
+interface lo
+ ip address 1.1.1.1/32 secondary
+ ipv6 address fec0:2422::1:1:1:1/128
+!
+ exit
+!
+router bgp 100
+ bgp router-id 1.1.1.1
+ no bgp inbound-route-filter
+ neighbor 100.66.5.1 remote-as 2422
+ !
+ address-family ipv4 unicast
+ redistribute connected
+ neighbor 100.66.5.1 activate
+ exit-address-family

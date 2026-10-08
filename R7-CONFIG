@@ -1,0 +1,24 @@
+hostname r7
+!
+!
+!
+interface xe11
+ ip address 100.66.2.2/30
+!
+interface lo
+ ip address 7.7.7.7/32 secondary
+ ipv6 address fec0:7777::7:7:7:7/128
+!
+ exit
+!
+router bgp 700
+ bgp router-id 7.7.7.7
+ no bgp inbound-route-filter
+ neighbor 100.66.2.1 remote-as 2422
+ !
+ address-family ipv4 unicast
+ redistribute connected
+ neighbor 100.66.2.1 activate
+ exit-address-family
+ !
+ exit
