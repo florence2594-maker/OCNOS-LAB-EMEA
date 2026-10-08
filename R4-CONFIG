@@ -9,7 +9,7 @@ interface loopback1
  ipv6 router isis 2422
 !
 !
-interface eth2
+interface xe18
  ip address 10.10.45.1/30
  ipv6 address 2603::4/127
  label-switching
@@ -21,7 +21,7 @@ interface eth2
   dcbx enable
   exit
 !
-interface eth1
+interface cd0
  ip address 10.10.24.2/30
  ipv6 address 2603::3/127
  label-switching
