@@ -2,7 +2,7 @@ hostname PE
 !
 ip vrf IP_VRF
  router-id 10.10.10.5
- rd 2422:5
+ rd 10.10.10.5:100
  route-target both 2422:100
 !
 !

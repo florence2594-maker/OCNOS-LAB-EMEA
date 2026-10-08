@@ -7,10 +7,21 @@ lldp tlv-select basic-mgmt system-capabilities
 lldp tlv-select basic-mgmt system-description
 lldp tlv-select basic-mgmt management-address
 !
-ip vrf IP_VRF
+evpn mpls enable
+evpn mpls vtep-ip-global 10.10.10.2
+!
+ip vrf IPVRF_1
  router-id 10.10.10.2
- rd 2422:2
+ rd 10.10.10.2:100
  route-target both 2422:100
+!
+ mac vrf EVPN_1001
+ rd 10.10.10.2:1001
+ route-target both 2422:1001
+!
+evpn mpls id 1001
+host-reachability-protocol evpn-bgp EVPN_1001
+!
 !
 interface loopback1
  ip address 10.10.10.2/32
@@ -19,13 +30,19 @@ interface loopback1
  ip router isis 2422
  ipv6 router isis 2422
 !
-interface xe13
+interface xe13.100
+ encapsulation dot1q 100
  ip vrf forwarding IP_VRF
  ip address 100.66.2.1/30
  lldp-agent
   set lldp enable txrx
   dcbx enable
   exit
+!
+interface xe13.1001 switchport
+encapsulation dot1q 1001
+access-if-evpn
+map vpn-id 1001
 !
 interface cd1
  ip address 10.10.23.1/30
@@ -97,6 +114,15 @@ router bgp 2422
  neighbor 10.10.10.5 next-hop-self
  exit-address-family
  !
+address-family l2vpn evpn
+  neighbor 10.10.10.3 activate
+  neighbor 10.10.10.3 next-hop-self
+  neighbor 10.10.10.4 activate
+  neighbor 10.10.10.4 next-hop-self
+  neighbor 10.10.10.5 activate
+  neighbor 10.10.10.5 next-hop-self
+ exit-address-family
+ !
  address-family ipv6 unicast
  neighbor fec0:2422::10:10:10:3 activate
  neighbor fec0:2422::10:10:10:3 next-hop-self
@@ -106,7 +132,7 @@ router bgp 2422
  neighbor fec0:2422::10:10:10:5 next-hop-self
  exit-address-family
  !
- address-family ipv4 vrf IP_VRF
+ address-family ipv4 vrf IPVRF_1
  neighbor 100.66.2.2 remote-as 700
  neighbor 100.66.2.2 activate
  exit-address-family
