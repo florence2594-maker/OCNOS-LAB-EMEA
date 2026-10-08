@@ -2,8 +2,13 @@ hostname r7
 !
 !
 !
-interface xe11
+interface xe11.100
+ encapsulation dot1q 100
  ip address 100.66.2.2/30
+!
+interface xe11.1001
+ encapsulation dot1q 1001
+ ip address 100.10.1.2/30
 !
 interface lo
  ip address 7.7.7.7/32 secondary

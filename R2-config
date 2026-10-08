@@ -34,10 +34,6 @@ interface xe13.100
  encapsulation dot1q 100
  ip vrf forwarding IP_VRF
  ip address 100.66.2.1/30
- lldp-agent
-  set lldp enable txrx
-  dcbx enable
-  exit
 !
 interface xe13.1001 switchport
 encapsulation dot1q 1001

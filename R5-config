@@ -1,10 +1,20 @@
 hostname PE
 !
-ip vrf IP_VRF
+vpn mpls enable
+evpn mpls vtep-ip-global 10.10.10.5
+!
+ip vrf IPVRF_1
  router-id 10.10.10.5
  rd 10.10.10.5:100
  route-target both 2422:100
 !
+ mac vrf EVPN_1001
+ rd 10.10.10.5:1001
+ route-target both 2422:1001
+!
+evpn mpls id 1001
+host-reachability-protocol evpn-bgp EVPN_1001
+
 !
 interface loopback1
  ip address 10.10.10.5/32
@@ -13,9 +23,15 @@ interface loopback1
  ip router isis 2422
  ipv6 router isis 2422
 !
-interface xe19
- ip vrf forwarding IP_VRF
+interface xe19.100
+ encapsulation dot1q 100
+ ip vrf forwarding IPVRF_1
  ip address 100.66.5.1/30
+!
+interface xe19.1001 switchport
+encapsulation dot1q 1001
+access-if-evpn
+map vpn-id 1001
 !
 interface xe18
  ip address 10.10.45.2/30
@@ -86,6 +102,15 @@ router bgp 2422
  neighbor 10.10.10.4 next-hop-self
  exit-address-family
  !
+address-family l2vpn evpn
+ neighbor 10.10.10.2 activate
+ neighbor 10.10.10.2 next-hop-self
+ neighbor 10.10.10.3 activate
+ neighbor 10.10.10.3 next-hop-self
+ neighbor 10.10.10.4 activate
+ neighbor 10.10.10.4 next-hop-self
+ exit-address-family
+ !
  address-family ipv6 unicast
  neighbor fec0:2422::10:10:10:2 activate
  neighbor fec0:2422::10:10:10:2 next-hop-self
@@ -95,7 +120,7 @@ router bgp 2422
  neighbor fec0:2422::10:10:10:4 next-hop-self
  exit-address-family
  !
- address-family ipv4 vrf IP_VRF
+ address-family ipv4 vrf IPVRF_1
  neighbor 100.66.5.2 remote-as 100
  neighbor 100.66.5.2 activate
  exit-address-family

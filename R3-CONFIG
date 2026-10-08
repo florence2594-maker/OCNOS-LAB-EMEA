@@ -2,6 +2,10 @@
 
 hostname PE3
 !
+!
+vpn mpls enable
+evpn mpls vtep-ip-global 10.10.10.3
+!
 interface loopback1
  ip address 10.10.10.3/32
  ipv6 address fec0:2422::10:10:10:3/128
@@ -72,6 +76,15 @@ router bgp 2422
  exit-address-family
  !
  address-family vpnv4 unicast
+ neighbor 10.10.10.2 activate
+ neighbor 10.10.10.2 next-hop-self
+ neighbor 10.10.10.4 activate
+ neighbor 10.10.10.4 next-hop-self
+ neighbor 10.10.10.5 activate
+ neighbor 10.10.10.5 next-hop-self
+ exit-address-family
+ !
+ address-family l2vpn evpn
  neighbor 10.10.10.2 activate
  neighbor 10.10.10.2 next-hop-self
  neighbor 10.10.10.4 activate

@@ -2,12 +2,13 @@
 hostname r1
 !
 !
-interface xe19
+interface xe19.100
+ encapsulation dot1q 100
  ip address 100.66.5.2/30
- lldp-agent
-  set lldp enable txrx
-  dcbx enable
-  exit
+!
+interface xe19.1001
+ encapsulation dot1q 1001
+ ip address 100.10.1.1/30
 !
 !
 interface lo
