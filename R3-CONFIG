@@ -3,8 +3,10 @@
 hostname PE3
 !
 !
-vpn mpls enable
+evpn mpls enable
 evpn mpls vtep-ip-global 10.10.10.3
+evpn mpls irb
+evpn irb-forwarding anycast-gateway-mac 0000.0000.0003
 !
 interface loopback1
  ip address 10.10.10.3/32

@@ -1,7 +1,9 @@
-hostname PE
+hostname PE5
 !
-vpn mpls enable
+evpn mpls enable
 evpn mpls vtep-ip-global 10.10.10.5
+evpn mpls irb
+evpn irb-forwarding anycast-gateway-mac 0000.0000.0005
 !
 ip vrf IPVRF_1
  router-id 10.10.10.5
@@ -9,7 +11,7 @@ ip vrf IPVRF_1
  route-target both 2422:100
  !
 ip vrf GRT_L3EVPN
-rd 10.10.10.5:100
+rd 10.10.10.5:200
 route-target both 2422:200
 l3vni 200
 !

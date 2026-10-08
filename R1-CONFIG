@@ -1,5 +1,5 @@
 !
-hostname r1
+hostname CE1
 !
 !
 interface xe19.100
@@ -12,7 +12,7 @@ interface xe19.1001
 !
 interface xe19.1002
  encapsulation dot1q 1002
- ip address 100.10.2.10/30
+ ip address 100.10.2.10/24
 !
 !
 interface lo

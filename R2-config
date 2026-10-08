@@ -9,6 +9,8 @@ lldp tlv-select basic-mgmt management-address
 !
 evpn mpls enable
 evpn mpls vtep-ip-global 10.10.10.2
+evpn mpls irb
+evpn irb-forwarding anycast-gateway-mac 0000.0000.0002
 !
 ip vrf IPVRF_1
  router-id 10.10.10.2
@@ -16,7 +18,7 @@ ip vrf IPVRF_1
  route-target both 2422:100
  !
 ip vrf GRT_L3EVPN
-rd 10.10.10.2:100
+rd 10.10.10.2:200
 route-target both 2422:200
 l3vni 200
 !
@@ -45,7 +47,7 @@ interface loopback1
 !
 interface xe13.100
  encapsulation dot1q 100
- ip vrf forwarding IP_VRF
+ ip vrf forwarding IPVRF_1
  ip address 100.66.2.1/30
 !
 interface xe13.1001 switchport
