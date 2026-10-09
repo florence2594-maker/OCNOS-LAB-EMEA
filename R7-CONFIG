@@ -1,3 +1,7 @@
+! Software version: EC_AS7316-26XB-OcNOS-CSR-7.0.1.1032-INTERNALUSEONLY 08/27/2026 14:49:01
+!
+! Last configuration change at 08:49:29 UTC Fri Oct 09 2026 by ocnos
+!
 service password-encryption
 !
 logging level nsm 4
@@ -84,6 +88,11 @@ interface xe11.1001
 interface xe11.1002
  encapsulation dot1q 1002
  ip address 100.10.2.70/24
+ shutdown
+!
+interface xe11.1003
+ encapsulation dot1q 1003
+ ip address 100.10.3.70/24
 !
 interface xe12
 !
@@ -122,3 +131,9 @@ router bgp 700
  exit-address-family
  !
  exit
+!
+!
+end
+
+!
+CE7#

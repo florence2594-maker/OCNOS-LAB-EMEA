@@ -1,9 +1,7 @@
 
-PE2#show running-config
-!
 ! Software version: UFI_S9510-28DC-OcNOS-SP-NA-7.0.1.999- 08/31/2026 08:07:53
 !
-! Last configuration change at 15:22:16 UTC Thu Oct 08 2026 by ocnos
+! Last configuration change at 08:47:37 UTC Fri Oct 09 2026 by ocnos
 !
 service password-encryption
 !
@@ -58,18 +56,18 @@ mac vrf EVPN_1001
  rd 10.10.10.2:1001
  route-target both 2422:1001
 !
-mac vrf EVPN_1002
- rd 10.10.10.2:1002
- route-target both 2422:1002
+mac vrf EVPN_1003
+ rd 10.10.10.2:1003
+ route-target both 2422:1003
 !
 evpn mpls vtep-ip-global 10.10.10.2
 !
 evpn mpls id 1001
  host-reachability-protocol evpn-bgp EVPN_1001
 !
-evpn mpls id 1002
- host-reachability-protocol evpn-bgp EVPN_1002
- evpn irb irb1002
+evpn mpls id 1003
+ host-reachability-protocol evpn-bgp EVPN_1003
+ evpn irb irb1003
  evpn irb-advertise-host-route
 !
 ip prefix-list isis-RAN
@@ -117,11 +115,10 @@ interface eth0
  ip vrf forwarding management
  ip address dhcp
 !
-interface irb1002
+interface irb1003
  ip vrf forwarding GRT_L3EVPN
  evpn irb-if-forwarding anycast-gateway-mac
- ip address 100.10.2.100/24 anycast
- ip address 100.10.2.1/24 secondary
+ ip address 100.10.3.1/24
 !
 interface lo
  ip address 127.0.0.1/8
@@ -175,8 +172,13 @@ interface xe13.1001 switchport
 !
 interface xe13.1002 switchport
  encapsulation dot1q 1002
+ shutdown
  access-if-evpn
-  map vpn-id 1002
+!
+interface xe13.1003 switchport
+ encapsulation dot1q 1003
+ access-if-evpn
+  map vpn-id 1003
 !
 interface xe14
 !
@@ -280,5 +282,3 @@ router bgp 2422
 !
 !
 end
-
-!
