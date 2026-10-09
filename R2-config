@@ -1,7 +1,7 @@
-
+!
 ! Software version: UFI_S9510-28DC-OcNOS-SP-NA-7.0.1.999- 08/31/2026 08:07:53
 !
-! Last configuration change at 08:47:37 UTC Fri Oct 09 2026 by ocnos
+! Last configuration change at 09:19:48 UTC Fri Oct 09 2026 by ocnos
 !
 service password-encryption
 !
@@ -273,6 +273,10 @@ router bgp 2422
   neighbor fec0:2422::10:10:10:5 next-hop-self
  exit-address-family
  !
+ address-family ipv4 vrf GRT_L3EVPN
+  redistribute connected
+ exit-address-family
+ !
  address-family ipv4 vrf IPVRF_1
   neighbor 100.66.2.2 remote-as 700
   neighbor 100.66.2.2 activate
@@ -282,3 +286,6 @@ router bgp 2422
 !
 !
 end
+
+!
+PE2#

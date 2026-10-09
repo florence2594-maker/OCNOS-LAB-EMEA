@@ -1,7 +1,6 @@
-!
 ! Software version: UFI_S9500-30XS-OcNOS-CSR-7.0.0.261-GA 02/20/2026 15:31:42
 !
-! Last configuration change at 03:32:13 UTC Tue Oct 06 2026 by ocnos
+! Last configuration change at 21:28:28 UTC Tue Oct 06 2026 by ocnos
 !
 feature streaming-telemetry vrf management
 !
@@ -280,6 +279,10 @@ router bgp 2422
  neighbor fec0:2422::10:10:10:4 next-hop-self
  exit-address-family
  !
+ address-family ipv4 vrf GRT_L3EVPN
+ redistribute connected
+ exit-address-family
+ !
  address-family ipv4 vrf IPVRF_1
  neighbor 100.66.5.2 remote-as 100
  neighbor 100.66.5.2 activate
@@ -289,3 +292,4 @@ router bgp 2422
 !
 !
 end
+
