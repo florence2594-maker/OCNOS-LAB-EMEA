@@ -1,3 +1,7 @@
+! Software version: UFI_S9510-28DC-OcNOS-SP-PLUS-7.0.0.261-GA 02/20/2026 15:31:02
+!
+! Last configuration change at 14:28:43 UTC Fri Oct 09 2026 by ocnos
+!
 feature streaming-telemetry vrf management
 !
 telemetry maximum-subscribe-paths 140
@@ -67,9 +71,35 @@ evpn mpls irb
 !
 evpn irb-forwarding anycast-gateway-mac 0000.0000.0004
 !
+ip vrf GRT_L3EVPN
+ rd 10.10.10.4:200
+ route-target both 2422:200
+ l3vni 200
+!
+ip vrf IPVRF_1
+ router-id 10.10.10.4
+ rd 10.10.10.4:100
+ route-target both 2422:100
+!
 ip vrf management
 !
+mac vrf EVPN_1001
+ rd 10.10.10.4:1001
+ route-target both 2422:1001
+!
+mac vrf EVPN_1003
+ rd 10.10.10.4:1003
+ route-target both 2422:1003
+!
 evpn mpls vtep-ip-global 10.10.10.4
+!
+evpn mpls id 1001
+ host-reachability-protocol evpn-bgp EVPN_1001
+!
+evpn mpls id 1003
+ host-reachability-protocol evpn-bgp EVPN_1003
+ evpn irb irb1003
+ evpn irb-advertise-host-route
 !
 route-map AIGP permit 10
  set aigp-metric igp-metric
@@ -112,6 +142,10 @@ interface ce3
 interface eth0
  ip vrf forwarding management
  ip address dhcp
+!
+interface irb1003
+ ip vrf forwarding GRT_L3EVPN
+ ip address 100.10.3.4/24
 !
 interface lo
  ip address 127.0.0.1/8
@@ -255,5 +289,11 @@ router bgp 2422
  neighbor fec0:2422::10:10:10:5 next-hop-self
  exit-address-family
  !
+ address-family ipv4 vrf GRT_L3EVPN
+ redistribute connected
+ exit-address-family
+ !
  exit
 !
+!
+end

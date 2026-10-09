@@ -1,6 +1,6 @@
 ! Software version: UFI_S9500-30XS-OcNOS-CSR-7.0.0.261-GA 02/20/2026 15:31:42
 !
-! Last configuration change at 21:28:28 UTC Tue Oct 06 2026 by ocnos
+! Last configuration change at 01:04:58 UTC Wed Oct 07 2026 by ocnos
 !
 feature streaming-telemetry vrf management
 !
@@ -72,6 +72,10 @@ mac vrf EVPN_1002
  rd 10.10.10.5:1002
  route-target both 2422:1002
 !
+mac vrf EVPN_1003
+ rd 10.10.10.5:1003
+ route-target both 2422:1003
+!
 evpn mpls vtep-ip-global 10.10.10.5
 !
 evpn mpls id 1001
@@ -80,6 +84,11 @@ evpn mpls id 1001
 evpn mpls id 1002
  host-reachability-protocol evpn-bgp EVPN_1002
  evpn irb irb1002
+ evpn irb-advertise-host-route
+!
+evpn mpls id 1003
+ host-reachability-protocol evpn-bgp EVPN_1003
+ evpn irb irb1003
  evpn irb-advertise-host-route
 !
 route-map AIGP permit 10
@@ -95,9 +104,11 @@ interface eth0
 !
 interface irb1002
  ip vrf forwarding GRT_L3EVPN
- evpn irb-if-forwarding anycast-gateway-mac
- ip address 100.10.2.100/24 anycast
- ip address 100.10.2.2/24 secondary
+ ip address 100.10.2.2/24
+!
+interface irb1003
+ ip vrf forwarding GRT_L3EVPN
+ ip address 100.10.3.2/24
 !
 interface lo
  ip address 127.0.0.1/8
@@ -292,4 +303,3 @@ router bgp 2422
 !
 !
 end
-

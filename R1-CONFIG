@@ -1,7 +1,7 @@
 !
 ! Software version: UFI_S9510-30XC-OcNOS-SP-PLUS-7.0.0.261-GA 02/20/2026 15:31:02
 !
-! Last configuration change at 09:05:07 UTC Fri Oct 09 2026 by ocnos
+! Last configuration change at 15:14:45 UTC Fri Oct 09 2026 by ocnos
 !
 service password-encryption
 !
@@ -61,6 +61,14 @@ interface ce0
 !
 interface ce1
 !
+interface ce1.100.3
+ encapsulation dot1q 1003
+ ip address 100.10.3.10/24
+!
+interface ce1.1002
+ encapsulation dot1q 1002
+ ip address 100.10.2.10/24
+!
 interface eth0
  ip vrf forwarding management
  ip address dhcp
@@ -115,7 +123,6 @@ interface xe19
 interface xe19.100
  encapsulation dot1q 100
  ip address 100.66.5.2/30
- shutdown
 !
 interface xe19.1001
  encapsulation dot1q 1001
@@ -123,7 +130,6 @@ interface xe19.1001
 !
 interface xe19.1002
  encapsulation dot1q 1002
- ip address 100.10.2.10/24
 !
 interface xe20
 !
@@ -159,10 +165,9 @@ router bgp 100
  !
  exit
 !
-ip route 0.0.0.0/0 100.10.2.2
+ip route 0.0.0.0/0 100.10.2.3
 !
 ip community-list standard CL-REGION-X-SELF permit 65000:1234
 !
 !
 end
-
