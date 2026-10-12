@@ -1,0 +1,139 @@
+! Software version: EC_AS7316-26XB-OcNOS-CSR-7.0.1.1032-INTERNALUSEONLY 08/27/2026 14:49:01
+!
+! Last configuration change at 09:50:33 UTC Mon Oct 12 2026 by ocnos
+!
+service password-encryption
+!
+logging level nsm 4
+logging level cmm 4
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile statistics ingress-acl enable
+!
+qos enable
+!
+hostname CE7
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature dns relay
+ip dns relay
+ipv6 dns relay
+feature rsyslog
+logging remote server 172.16.10.17 5 port 1514 vrf management
+lldp run
+lldp tlv-select basic-mgmt port-description
+lldp tlv-select basic-mgmt system-name
+lldp tlv-select basic-mgmt system-capabilities
+lldp tlv-select basic-mgmt system-description
+lldp tlv-select basic-mgmt management-address
+lldp notification-interval 1000
+fault-management enable
+!
+ip vrf management
+!
+interface ce0
+!
+interface ce1
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface lo
+ ip address 127.0.0.1/8
+ ip address 7.7.7.7/32 secondary
+ ipv6 address ::1/128
+ ipv6 address fec0:7777::7:7:7:7/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface xe0
+!
+interface xe1
+!
+interface xe2
+!
+interface xe3
+!
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+!
+interface xe10
+!
+interface xe11
+!
+interface xe11.100
+ encapsulation dot1q 100
+ ip address 100.66.2.2/30
+ shutdown
+!
+interface xe11.1001
+ encapsulation dot1q 1001
+ ip address 100.10.1.70/24
+!
+interface xe11.1002
+ encapsulation dot1q 1002
+ ip address 100.10.2.70/24
+ shutdown
+!
+interface xe11.1003
+ encapsulation dot1q 1003
+ ip address 100.10.3.70/24
+!
+interface xe12
+!
+interface xe13
+!
+interface xe14
+!
+interface xe15
+!
+interface xe16
+!
+interface xe17
+!
+interface xe18
+!
+interface xe19
+!
+interface xe20
+!
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+ exit
+!
+router bgp 700
+ bgp router-id 7.7.7.7
+ no bgp inbound-route-filter
+ neighbor 100.66.2.1 remote-as 2422
+ !
+ address-family ipv4 unicast
+  redistribute connected
+  neighbor 100.66.2.1 activate
+ exit-address-family
+ !
+ exit
+!
+ip route 0.0.0.0/0 100.10.1.3
+!
+!
+end
