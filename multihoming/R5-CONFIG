@@ -1,0 +1,392 @@
+!
+! Software version: UFI_S9500-30XS-OcNOS-CSR-7.0.0.261-GA 02/20/2026 15:31:42
+!
+! Last configuration change at 04:02:17 UTC Wed Oct 14 2026 by ocnos
+!
+feature streaming-telemetry vrf management
+!
+telemetry maximum-subscribe-paths 140
+!
+service password-encryption
+!
+logging logfile messages 5
+logging level nsm 4
+logging level cmm 4
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile filter ingress-ipv4-ext enable
+hardware-profile filter evpn-mpls-mh enable
+hardware-profile statistics ingress-acl enable
+!
+bfd interval 50 minrx 50 multiplier 3
+!
+qos enable
+qos statistics
+!
+hostname PE5
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature dns relay
+ip dns relay
+ipv6 dns relay
+feature rsyslog
+logging remote server 172.16.10.17 5 port 1514 vrf management
+lldp run
+lldp tlv-select basic-mgmt port-description
+lldp tlv-select basic-mgmt system-name
+lldp tlv-select basic-mgmt system-capabilities
+lldp tlv-select basic-mgmt system-description
+lldp tlv-select basic-mgmt management-address
+lldp notification-interval 1000
+fault-management enable
+!
+ip access-list Anti-Spoofing
+ remark "1 Anti-Spoofing"
+ 10 deny any 0.0.0.0 0.255.255.255 any
+ 20 deny any 10.0.0.0 0.255.255.255 any
+ 30 deny any 100.64.0.0 0.63.255.255 any
+!
+evpn mpls enable
+!
+evpn mpls irb
+!
+evpn mpls multihoming enable
+!
+evpn irb-forwarding anycast-gateway-mac 0011.2233.4455
+!
+ip vrf GRT
+ rd 10.10.10.5:200
+ route-target both 2422:200
+ l3vni 200
+!
+ip vrf L3VPN
+ router-id 10.10.10.5
+ rd 10.10.10.5:300
+ route-target both 2422:300
+ l3vni 300
+!
+ip vrf L3VPN_2
+ rd 10.10.10.5:400
+ route-target both 2422:400
+ l3vni 400
+!
+ip vrf management
+!
+mac vrf V1001
+ rd 10.10.10.5:1001
+ route-target both 2422:1001
+!
+mac vrf V101
+ rd 10.10.10.5:101
+ route-target both 2422:101
+!
+mac vrf V102
+ rd 10.10.10.5:102
+ route-target both 2422:102
+!
+mac vrf V103
+ rd 10.10.10.5:103
+ route-target both 2422:103
+!
+mac vrf V104
+ rd 10.10.10.5:104
+ route-target both 2422:104
+!
+mac vrf V105
+ rd 10.10.10.5:105
+ route-target both 2422:105
+!
+evpn mpls vtep-ip-global 10.10.10.5
+!
+evpn mpls id 101
+ host-reachability-protocol evpn-bgp V101
+ evpn irb irb101
+ evpn irb-advertise-host-route
+!
+evpn mpls id 102
+ host-reachability-protocol evpn-bgp V102
+ evpn irb irb102
+ evpn irb-advertise-host-route
+!
+evpn mpls id 103
+ host-reachability-protocol evpn-bgp V103
+ evpn irb irb103
+ evpn irb-advertise-host-route
+!
+evpn mpls id 104
+ host-reachability-protocol evpn-bgp V104
+!
+evpn mpls id 105
+ host-reachability-protocol evpn-bgp V105
+ evpn irb irb105
+ evpn irb-advertise-host-route
+!
+evpn mpls id 1001
+ host-reachability-protocol evpn-bgp V1001
+!
+route-map AIGP permit 10
+ set aigp-metric igp-metric
+!
+interface po10
+ load-interval 30
+ evpn multi-homed system-mac 0000.aaaa.bbbb
+!
+interface po10.101 switchport
+ encapsulation dot1q 101
+ access-if-evpn
+  map vpn-id 101
+!
+interface po10.102 switchport
+ encapsulation dot1q 102
+ access-if-evpn
+  map vpn-id 102
+!
+interface po10.103 switchport
+ encapsulation dot1q 103
+ access-if-evpn
+  map vpn-id 103
+!
+interface po10.104 switchport
+ encapsulation dot1q 104
+ access-if-evpn
+  map vpn-id 104
+!
+interface po10.105 switchport
+ encapsulation dot1q 105
+ access-if-evpn
+  map vpn-id 105
+!
+interface po10.1001 switchport
+ encapsulation dot1q 1001
+ access-if-evpn
+  map vpn-id 1001
+!
+interface ce0
+!
+interface ce1
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface irb101
+ ip vrf forwarding GRT
+ evpn irb-if-forwarding anycast-gateway-mac
+ ip address 100.10.101.1/30 anycast
+!
+interface irb102
+ ip vrf forwarding L3VPN
+ evpn irb-if-forwarding anycast-gateway-mac
+ ip address 100.10.102.1/30 anycast
+!
+interface irb103
+ ip vrf forwarding L3VPN
+ evpn irb-if-forwarding anycast-gateway-mac
+ ip address 100.10.103.1/30 anycast
+!
+interface irb105
+ ip vrf forwarding L3VPN_2
+ ip address 100.10.105.1/30
+!
+interface lo
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface loopback1
+ ip address 10.10.10.5/32
+ ipv6 address fec0:2422::10:10:10:5/128
+ prefix-sid index 55
+ ip router isis 2422
+ ipv6 router isis 2422
+!
+interface loopback2
+ ip vrf forwarding GRT
+ ip address 100.10.200.5/32
+ ipv6 address fec0:2422::100:10:200:5/128
+!
+interface loopback3
+ ip vrf forwarding L3VPN
+ ip address 100.10.201.5/32
+ ipv6 address fec0:2422::100:10:300:5/128
+!
+interface xe0
+!
+interface xe1
+!
+interface xe2
+!
+interface xe3
+!
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+!
+interface xe10
+!
+interface xe11
+ description To-P2-xe11
+ load-interval 30
+ mtu 9216
+ bfd interval 50 minrx 50 multiplier 3
+!
+interface xe12
+ description To-P3-xe11
+ load-interval 30
+ ip address 10.10.35.2/30
+ ipv6 address 2603::7/127
+ mtu 9216
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  exit
+ bfd interval 50 minrx 50 multiplier 3
+!
+interface xe13
+!
+interface xe14
+!
+interface xe15
+ mtu 9216
+!
+interface xe16
+!
+interface xe17
+!
+interface xe18
+ ip address 10.10.45.2/30
+ ipv6 address 2603::5/127
+ mtu 9212
+ label-switching
+ isis network point-to-point
+ ip router isis 2422
+ ipv6 router isis 2422
+ lldp-agent
+  set lldp enable txrx
+  exit
+!
+interface xe19
+ channel-group 10 mode active
+!
+interface xe20
+!
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+interface xe24
+!
+interface xe25
+!
+interface xe26
+!
+interface xe27
+!
+ exit
+!
+router isis 2422
+ is-type level-1
+ metric-style wide level-1
+ mpls traffic-eng level-1
+ dynamic-hostname
+ fast-reroute per-prefix level-1 proto ipv4 all
+ bfd all-interfaces
+ net 49.2422.0000.0000.0005.00
+ isis segment-routing global block 16000 23999
+ segment-routing mpls
+!
+bgp nexthop-trigger enable
+bgp nexthop-trigger delay 1
+!
+router bgp 2422
+ bgp router-id 10.10.10.5
+ no bgp inbound-route-filter
+ neighbor 10.10.10.2 remote-as 2422
+ neighbor 10.10.10.2 update-source loopback1
+ neighbor 10.10.10.3 remote-as 2422
+ neighbor 10.10.10.3 update-source loopback1
+ neighbor 10.10.10.4 remote-as 2422
+ neighbor 10.10.10.4 update-source loopback1
+ neighbor fec0:2422::10:10:10:2 remote-as 2422
+ neighbor fec0:2422::10:10:10:2 update-source loopback1
+ neighbor fec0:2422::10:10:10:3 remote-as 2422
+ neighbor fec0:2422::10:10:10:3 update-source loopback1
+ neighbor fec0:2422::10:10:10:4 remote-as 2422
+ neighbor fec0:2422::10:10:10:4 update-source loopback1
+ !
+ address-family ipv4 unicast
+ neighbor 10.10.10.2 activate
+ neighbor 10.10.10.2 next-hop-self
+ neighbor 10.10.10.3 activate
+ neighbor 10.10.10.3 next-hop-self
+ neighbor 10.10.10.4 activate
+ neighbor 10.10.10.4 next-hop-self
+ exit-address-family
+ !
+ address-family vpnv4 unicast
+ neighbor 10.10.10.2 activate
+ neighbor 10.10.10.2 next-hop-self
+ neighbor 10.10.10.3 activate
+ neighbor 10.10.10.3 next-hop-self
+ neighbor 10.10.10.4 activate
+ neighbor 10.10.10.4 next-hop-self
+ exit-address-family
+ !
+ address-family l2vpn evpn
+ neighbor 10.10.10.2 activate
+ neighbor 10.10.10.3 activate
+ neighbor 10.10.10.4 activate
+ exit-address-family
+ !
+ address-family ipv6 unicast
+ neighbor fec0:2422::10:10:10:2 activate
+ neighbor fec0:2422::10:10:10:2 next-hop-self
+ neighbor fec0:2422::10:10:10:3 activate
+ neighbor fec0:2422::10:10:10:3 next-hop-self
+ neighbor fec0:2422::10:10:10:4 activate
+ neighbor fec0:2422::10:10:10:4 next-hop-self
+ exit-address-family
+ !
+ address-family ipv4 vrf GRT
+ redistribute connected
+ exit-address-family
+ !
+ address-family ipv4 vrf L3VPN
+ redistribute connected
+ neighbor 100.10.103.2 remote-as 100
+ neighbor 100.10.103.2 activate
+ neighbor 100.10.103.2 ebgp-multihop
+ neighbor 100.10.103.2 fall-over bfd multihop
+ exit-address-family
+ !
+ address-family ipv4 vrf L3VPN_2
+ redistribute connected
+ neighbor 100.10.105.2 remote-as 100
+ neighbor 100.10.105.2 activate
+ neighbor 100.10.105.2 fall-over bfd multihop
+ exit-address-family
+ !
+ exit
+!
+!
+end

@@ -1,0 +1,183 @@
+!
+! Software version: UFI_S9510-30XC-OcNOS-SP-PLUS-7.0.0.261-GA 02/20/2026 15:31:02
+!
+! Last configuration change at 15:49:11 UTC Fri Oct 16 2026 by ocnos
+!
+service password-encryption
+!
+logging logfile messages 5
+logging level nsm 4
+logging level cmm 4
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile statistics voq-full-color enable
+hardware-profile statistics cfm-ccm enable
+!
+qos enable
+!
+hostname CE1
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature dns relay
+ip dns relay
+ipv6 dns relay
+feature rsyslog
+logging remote server 172.16.10.17 5 port 1514 vrf management
+lldp run
+lldp tlv-select basic-mgmt port-description
+lldp tlv-select basic-mgmt system-name
+lldp tlv-select basic-mgmt system-capabilities
+lldp tlv-select basic-mgmt system-description
+lldp tlv-select basic-mgmt management-address
+lldp notification-interval 1000
+fault-management enable
+!
+ip vrf L3VPN
+!
+ip vrf management
+!
+route-map DENY-ALL deny 10
+!
+interface po10
+ load-interval 30
+!
+interface po10.101
+ encapsulation dot1q 101
+ ip address 100.10.101.2/30
+ shutdown
+!
+interface po10.102
+ encapsulation dot1q 102
+ ip address 100.10.102.2/30
+!
+interface po10.103
+ encapsulation dot1q 103
+ ip address 100.10.103.2/30
+!
+interface po10.104
+ encapsulation dot1q 104
+ ip address 100.10.104.2/30
+!
+interface po10.105
+ encapsulation dot1q 105
+ ip address 100.10.105.2/30
+!
+interface po10.1001
+ encapsulation dot1q 1001
+ ip address 100.10.10.10/24
+!
+interface ce0
+!
+interface ce1
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface lo
+ ip address 127.0.0.1/8
+ ip address 1.1.1.1/32 secondary
+ ipv6 address ::1/128
+ ipv6 address fec0:2422::1:1:1:1/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface xe2
+!
+interface xe3
+!
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+!
+interface xe10
+!
+interface xe11
+!
+interface xe12
+!
+interface xe13
+!
+interface xe14
+!
+interface xe15
+!
+interface xe16
+!
+interface xe17
+!
+interface xe18
+!
+interface xe19
+ channel-group 10 mode active
+!
+interface xe20
+!
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+interface xe24
+!
+interface xe25
+ speed 10g
+ channel-group 10 mode active
+!
+interface xe26
+!
+interface xe27
+!
+interface xe28
+!
+interface xe29
+!
+ exit
+!
+router bgp 100
+ bgp router-id 1.1.1.1
+ no bgp inbound-route-filter
+ neighbor 100.10.10.70 remote-as 700
+ neighbor 100.10.10.70 fall-over bfd multihop
+ neighbor 100.10.104.1 remote-as 2422
+ neighbor 100.10.104.1 fall-over bfd multihop
+ neighbor 100.10.105.1 remote-as 2422
+ neighbor 100.10.105.1 fall-over bfd multihop
+ neighbor 100.10.201.4 remote-as 2422
+ neighbor 100.10.201.4 ebgp-multihop 4
+ neighbor 100.10.201.4 fall-over bfd multihop
+ neighbor 100.10.201.5 remote-as 2422
+ neighbor 100.10.201.5 ebgp-multihop 4
+ neighbor 100.10.201.5 fall-over bfd multihop
+ !
+ address-family ipv4 unicast
+ neighbor 100.10.10.70 activate
+ neighbor 100.10.10.70 route-map DENY-ALL in
+ neighbor 100.10.10.70 route-map DENY-ALL out
+ neighbor 100.10.104.1 activate
+ neighbor 100.10.105.1 activate
+ neighbor 100.10.201.4 activate
+ neighbor 100.10.201.5 activate
+ exit-address-family
+ !
+ exit
+!
+ip route 100.10.201.4/32 100.10.102.1
+ip route 100.10.201.5/32 100.10.103.1
+!
+!

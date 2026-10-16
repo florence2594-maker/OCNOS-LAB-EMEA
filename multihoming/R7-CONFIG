@@ -1,0 +1,140 @@
+!
+! Software version: EC_AS7316-26XB-OcNOS-CSR-7.0.1.1032-INTERNALUSEONLY 08/27/2026 14:49:01
+!
+! Last configuration change at 16:02:58 UTC Fri Oct 16 2026 by ocnos
+!
+service password-encryption
+!
+logging logfile messages 5
+logging level nsm 4
+logging level cmm 4
+!
+!
+snmp-server enable traps link linkDown
+snmp-server enable traps link linkUp
+!
+hardware-profile statistics ingress-acl enable
+!
+qos enable
+!
+hostname CE7
+tfo Disable
+errdisable cause stp-bpdu-guard
+feature dns relay
+ip dns relay
+ipv6 dns relay
+feature rsyslog
+logging remote server 172.16.10.17 5 port 1514 vrf management
+lldp run
+lldp tlv-select basic-mgmt port-description
+lldp tlv-select basic-mgmt system-name
+lldp tlv-select basic-mgmt system-capabilities
+lldp tlv-select basic-mgmt system-description
+lldp tlv-select basic-mgmt management-address
+lldp notification-interval 1000
+fault-management enable
+!
+ip vrf management
+!
+interface ce0
+!
+interface ce1
+!
+interface eth0
+ ip vrf forwarding management
+ ip address dhcp
+!
+interface lo
+ ip address 127.0.0.1/8
+ ip address 7.7.7.7/32 secondary
+ ipv6 address ::1/128
+ ipv6 address fec0:7777::7:7:7:7/128
+!
+interface lo.management
+ ip vrf forwarding management
+ ip address 127.0.0.1/8
+ ipv6 address ::1/128
+!
+interface xe0
+!
+interface xe1
+!
+interface xe2
+!
+interface xe3
+!
+interface xe4
+!
+interface xe5
+!
+interface xe6
+!
+interface xe7
+!
+interface xe8
+!
+interface xe9
+!
+interface xe10
+!
+interface xe11
+!
+interface xe11.701
+ encapsulation dot1q 701
+ ip address 100.70.101.2/30
+!
+interface xe11.703
+ encapsulation dot1q 703
+ ip address 100.70.103.2/30
+!
+interface xe11.1001
+ encapsulation dot1q 1001
+ ip address 100.10.10.70/24
+!
+interface xe12
+!
+interface xe13
+!
+interface xe14
+!
+interface xe15
+!
+interface xe16
+!
+interface xe17
+!
+interface xe18
+!
+interface xe19
+!
+interface xe20
+!
+interface xe21
+!
+interface xe22
+!
+interface xe23
+!
+ exit
+!
+router bgp 700
+ bgp router-id 7.7.7.7
+ no bgp inbound-route-filter
+ neighbor 100.10.10.10 remote-as 100
+ neighbor 100.10.10.10 fall-over bfd multihop
+ neighbor 100.70.101.1 remote-as 2422
+ neighbor 100.70.101.1 fall-over bfd
+ neighbor 100.70.103.1 remote-as 2422
+ neighbor 100.70.103.1 fall-over bfd
+ !
+ address-family ipv4 unicast
+  redistribute connected
+  neighbor 100.10.10.10 activate
+  neighbor 100.70.101.1 activate
+  neighbor 100.70.103.1 activate
+ exit-address-family
+ !
+ exit
+!
+!
+end
